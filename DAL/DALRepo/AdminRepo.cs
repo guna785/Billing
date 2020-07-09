@@ -42,7 +42,7 @@ namespace DAL.DALRepo
             return await context.admins.Find<admin>(a => a.Id.Equals(ID)).FirstOrDefaultAsync();
         }
 
-        public async Task<bool> InserAdmin(admin _admin)
+        public async Task<bool> InsertAdmin(admin _admin)
         {
             try
             {

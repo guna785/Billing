@@ -1,0 +1,134 @@
+﻿
+@{
+    ViewData["Title"] = "Logs";
+}
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Logs</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Logs</h3>
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                        <table id="LogsTable" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Created Date</th>
+                                    <th>Event Name</th>
+                                    <th>User ID</th>
+                                    <th>Message</th>
+
+                                </tr>
+
+                            </thead>
+                            <tbody>
+
+
+                        </table>
+                    </div>
+                    <!-- /.card-body -->
+                </div>
+                <!-- /.card -->
+            </div>
+            <!-- /.col -->
+        </div>
+        <!-- /.row -->
+    </div>
+    <!-- /.container-fluid -->
+</section>
+<!-- /.content -->
+
+<script>
+    function LoadData() {
+        $("#LogsTable").DataTable({
+            // Design Assets
+            stateSave: true,
+            autoWidth: true,
+            destroy: true,
+            // ServerSide Setups
+            processing: true,
+            serverSide: true,
+            // Paging Setups
+            paging: true,
+            // Searching Setups
+            searching: { regex: true },
+            // Ajax Filter
+            ajax: {
+                url: "/ViewDataServer/LoadLogsTables",
+                type: "POST",
+                contentType: "application/json",
+                dataType: "json",
+                data: function (d) {
+                    return JSON.stringify(d);
+                }
+            },
+            // Columns Setups
+            columns: [
+                {
+                    data: "cdate",
+                    render: function (data, type, row) {
+                        // If display or filter data is requested, format the date
+                        if (type === "display" || type === "filter") {
+                            return moment(data).format("ddd DD/MM/YYYY HH:mm:ss");
+                        }
+                        // Otherwise the data type requested (`type`) is type detection or
+                        // sorting data, for which we want to use the raw date value, so just return
+                        // that, unaltered
+                        return data;
+                    }
+                },
+                { data: "name" },
+                { data: "uid" },
+                { data: "message" }
+               
+            ],
+            // Column Definitions
+            columnDefs: [
+                { targets: "no-sort", orderable: false },
+                { targets: "no-search", searchable: false },
+                {
+                    targets: "trim",
+                    render: function (data, type, full, meta) {
+                        if (type === "display") {
+                            data = strtrunc(data, 10);
+                        }
+
+                        return data;
+                    }
+                },
+                { targets: "date-type", type: "date-eu" }
+            ]
+        });
+    }
+    $(document).ready(function () {
+        LoadData();
+    });
+
+    function strtrunc(str, num) {
+        if (str.length > num) {
+            return str.slice(0, num) + "...";
+        }
+        else {
+            return str;
+        }
+    }
+</script>

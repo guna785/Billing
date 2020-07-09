@@ -1,0 +1,198 @@
+﻿
+@{
+    ViewData["Title"] = "Payments";
+}
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Payments</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Payments</h3>
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                        <table id="PaymentsTable" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Payment No</th>
+                                    <th>Invoice No</th>
+
+                                    <th>Sales ID</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Created Date</th>
+                                    <th>Action</th>
+                                </tr>
+
+                            </thead>
+                            <tbody>
+
+
+                        </table>
+                    </div>
+                    <!-- /.card-body -->
+                </div>
+                <!-- /.card -->
+            </div>
+            <!-- /.col -->
+        </div>
+        <!-- /.row -->
+    </div>
+    <!-- /.container-fluid -->
+</section>
+<!-- /.content -->
+
+<script>
+    function LoadData() {
+        $("#PaymentsTable").DataTable({
+            // Design Assets
+            stateSave: true,
+            autoWidth: true,
+            destroy: true,
+            // ServerSide Setups
+            processing: true,
+            serverSide: true,
+            // Paging Setups
+            paging: true,
+            // Searching Setups
+            searching: { regex: true },
+            // Ajax Filter
+            ajax: {
+                url: "/ViewDataServer/LoadPaymentsTables",
+                type: "POST",
+                contentType: "application/json",
+                dataType: "json",
+                data: function (d) {
+                    return JSON.stringify(d);
+                }
+            },
+            // Columns Setups
+            columns: [
+                { data: "pid" },
+                { data: "invid" },
+                { data: "sid" },
+                { data: "amt" },
+                {
+                    data: "status",
+                    render: function (data, type, row) {
+
+                        return '<span class="btn btn-success">' + data + '</span>';
+
+                    }
+                },
+
+                {
+                    data: "cdate",
+                    render: function (data, type, row) {
+                        // If display or filter data is requested, format the date
+                        if (type === "display" || type === "filter") {
+                            return moment(data).format("ddd DD/MM/YYYY HH:mm:ss");
+                        }
+                        // Otherwise the data type requested (`type`) is type detection or
+                        // sorting data, for which we want to use the raw date value, so just return
+                        // that, unaltered
+                        return data;
+                    }
+                },
+                {
+                    data: null,
+                    render: function (data, type, row) {
+                        return '<a href="#" class="btn btn-primary" onclick="PrintPayments(\'' + row.id + '\');">Print</a>  <a class="btn btn-danger" onclick="delPayments(\'' + row.id + '\');" title="Cancel">Cancel</a>';
+                    }
+                }
+            ],
+            // Column Definitions
+            columnDefs: [
+                { targets: "no-sort", orderable: false },
+                { targets: "no-search", searchable: false },
+                {
+                    targets: "trim",
+                    render: function (data, type, full, meta) {
+                        if (type === "display") {
+                            data = strtrunc(data, 10);
+                        }
+
+                        return data;
+                    }
+                },
+                { targets: "date-type", type: "date-eu" }
+            ]
+        });
+    }
+    $(document).ready(function () {
+        LoadData();
+    });
+    function PrintPayments(id) {
+        var mywindow = window.open("/Home/reciept/" + id, 'Print', 'height=900,width=900');
+
+
+        setTimeout(function () {
+            mywindow.focus();
+            mywindow.print();
+            //mywindow.close();
+        }, 5000);
+
+
+
+        return true;
+    }
+    function delPayments(id) {
+        swal({
+            title: "Are you sure?",
+            text: "Your will not be able to recover this Record!",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonClass: "btn-danger",
+            confirmButtonText: "Yes, Remove it!",
+            closeOnConfirm: false
+        },
+            function () {
+                $.ajax({
+                    url: "/Stock/CancelPayment/",
+                    dataType: 'json',
+                    type: 'post',
+                    contentType: 'application/json',
+                    processData: false,
+                    data: JSON.stringify(id),
+                    async: true,
+                    success: function (response) {
+                        swal("Deleted!", "Your session Record has been Removed.", "success");
+                        LoadTables();
+                        tottaxAmtcalculate();
+                    },
+                    error: function (e) {
+                        swal("Oops", e.responseText, "error");
+                        LoadTables();
+                        tottaxAmtcalculate();
+                    }
+                });
+
+            });
+    }
+    function strtrunc(str, num) {
+        if (str.length > num) {
+            return str.slice(0, num) + "...";
+        }
+        else {
+            return str;
+        }
+    }
+</script>
+

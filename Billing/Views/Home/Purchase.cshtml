@@ -1,0 +1,372 @@
+﻿
+@{
+    ViewData["Title"] = "Purchase";
+}
+
+<style>
+    .ui-autocomplete-row {
+        padding: 8px;
+        background-color: #f4f4f4;
+        border-bottom: 1px solid #ccc;
+        font-weight: bold;
+    }
+
+        .ui-autocomplete-row:hover {
+            background-color: #ddd;
+        }
+</style>
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Purchase</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <form action="javascript:void(0);" onSubmit="NewPurchaseSubmit()">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Invoice No</label>
+                                <input class="form-control" required type="text" id="invoiceno" name="invno" placeholder="Invoice No" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Invoice Date</label>
+                                <input class="form-control" required type="date" id="invoicedate" name="invdate" placeholder="Invoice Date" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Suplier</label>
+                                <select class="form-control select2" id="suplier" name="suplier" placeholder="Suplier" style="width: 100%;">
+                                    @foreach (var item in ViewBag.sup)
+                                    {
+                                        <option value="@item.name">@item.name</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Total Tax</label>
+                                <input class="form-control" required readonly type="text" id="tottax" name="tax" placeholder="Total Tax" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Total Amount</label>
+                                <input class="form-control" required readonly type="text" id="totamt" name="amt" placeholder="Tatal Amount" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Comment</label>
+                                <input class="form-control" type="text" id="comment" name="comment" placeholder="Comment" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+
+                                <input class="btn btn-primary" readonly type="submit" id="psubmint" value="Make Purchase" />
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="card">
+                    <div class="card-header">
+                        <a onclick="addStock();" class="btn btn-primary">Add Product</a>
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                        <table id="PurchaseTable" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th><input class="form-control" type="text" autocomplete="off" id="pname" autofocus name="pname" /></th>
+                                    <th></th>
+                                    <th><input class="form-control" type="text" readonly id="cname" name="cname" /></th>
+                                    <th><input class="form-control" type="text" readonly id="mrp" name="mrp" /></th>
+                                    <th><input class="form-control" type="text" readonly id="company" name="company" /></th>
+                                    <th><input class="form-control" type="text" readonly id="acp" name="acp" /></th>
+                                    <th><input class="form-control" type="text" id="qty" onchange="onQtyChange();" name="qty" /></th>
+                                    <th><input class="form-control" type="text" readonly id="amt" name="amt" /></th>
+                                    <th><a class="btn btn-primary" title="ShortCut - Alt+a" onclick="AddToRow();">Add</a></th>
+                                </tr>
+                                <tr>
+                                    <th>Name</th>
+                                    <th></th>
+                                    <th>Common Name</th>
+                                    <th>MRP</th>
+                                    <th>Company</th>
+                                    <th>Actual Price (Tax Inclusive)</th>
+                                    <th>Quantity</th>
+                                    <th>Amount (Tax Inclusive)</th>
+                                    <th>Action</th>
+                                </tr>
+
+
+                            </thead>
+                            <tbody>
+
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="modal fade" id="StockModel">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="mtitle" class="modal-title"></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div id="mbody" class="modal-body">
+
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<script>
+    $('.select2').select2()
+    var ID = "";
+    function AddToRow() {
+
+        $.ajax({
+            url: "/Stock/SetStockSession/",
+            dataType: 'json',
+            type: 'post',
+            contentType: 'application/json',
+            data: JSON.stringify({ Id: ID, qty: $('#qty').val() }),
+            processData: false,
+            async: true,
+            success: function (response) {
+                $('#pname').val("");
+                $('#cname').val("");
+                $('#mrp').val("");
+                $('#company').val("");
+                $('#acp').val("");
+                $('#qty').val("");
+                $('#amt').val("");
+                LoadTables();
+                tottaxAmtcalculate();
+            },
+            error: function (e) {
+                swal("Oops", e.responseText, "error");
+
+            }
+        });
+
+
+    }
+    function addStock() {
+        $("#mbody").load("/Home/PopUpModalShow/AddStock", function () {
+
+            $("#mtitle").text("Add Stock");
+            $("#StockModel").modal("show");
+        });
+    }
+    document.onkeyup = function (e) {
+        var e = e || window.event; // for IE to cover IEs window event-object
+        if (e.altKey && e.which == 65) {
+            AddToRow();
+            return false;
+        }
+    }
+    function tottaxAmtcalculate() {
+        $.get("/Stock/getSessionPTamount/", function (data, status) {
+            $('#tottax').val(data.tax);
+            $('#totamt').val(data.amt);
+        });
+    }
+    function onQtyChange() {
+        var amt = (parseInt($('#qty').val()) * parseInt($('#acp').val()));
+        $('#amt').val(amt);
+    }
+
+    $('#pname').autocomplete({
+        source: '/Stock/purchaseAutocomplete',
+        minLength: 1,
+        select: function (event, ui) {
+            console.log(ui.item);
+            $.get("/Stock/getStockByID/" + ui.item.id, function (data, status) {
+                $('#pname').val(data.name);
+                $('#cname').val(data.cmname);
+                $('#mrp').val(data.mrp);
+                $('#company').val(data.company);
+                $('#acp').val(data.actprice);
+                $('#qty').val('1');
+                $('#amt').val(data.actprice);
+                ID = ui.item.id;
+
+            });
+        }
+    }).data('ui-autocomplete')._renderItem = function (ui, item) {
+        return $("<li class='ui-autocomplete-row'></li>")
+            .data("item.autocomplete", item)
+            .append(item.label)
+            .appendTo(ui);
+    };
+    function LoadTables() {
+        $("#PurchaseTable").DataTable({
+            // Design Assets
+            stateSave: true,
+            autoWidth: true,
+            destroy: true,
+            // ServerSide Setups
+            processing: true,
+            serverSide: true,
+            // Paging Setups
+            paging: true,
+            // Searching Setups
+            searching: { regex: true },
+            // Ajax Filter
+            ajax: {
+                url: "/ViewDataServer/GetDataFromSession",
+                type: "POST",
+                contentType: "application/json",
+                dataType: "json",
+                data: function (d) {
+                    return JSON.stringify(d);
+                }
+            },
+            // Columns Setups
+            columns: [
+                { data: "name" },
+                {
+                    data: null,
+                    orderable: false,
+                    render: function (data, type, row) {
+                        return '<img width="50" height="50" src="data:image/png;base64,' + row.photo + '" class="img-circle elevation-2">';
+                    }
+                },
+                { data: "cmname" },
+                { data: "mrp" },
+                { data: "company" },
+                { data: "actprice" },
+                { data: "qty" },
+                { data: "amount" },
+                {
+                    data: null,
+                    orderable: false,
+                    render: function (data, type, row) {
+                        return '<a class="btn btn-danger" onclick="removeStock(\'' + row.id + '\');" title="delete">Remove</a>';
+                    }
+                }
+            ],
+            // Column Definitions
+            columnDefs: [
+                { targets: "no-sort", orderable: false },
+                { targets: "no-search", searchable: false },
+                {
+                    targets: "trim",
+                    render: function (data, type, full, meta) {
+                        if (type === "display") {
+                            data = strtrunc(data, 10);
+                        }
+
+                        return data;
+                    }
+                },
+                { targets: "date-type", type: "date-eu" }
+            ]
+        });
+    }
+    LoadTables();
+    tottaxAmtcalculate();
+    function removeStock(id) {
+        swal({
+            title: "Are you sure?",
+            text: "Your will not be able to recover this Record!",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonClass: "btn-danger",
+            confirmButtonText: "Yes, delete it!",
+            closeOnConfirm: false
+        },
+            function () {
+                $.ajax({
+                    url: "/Stock/DeleteStockSession/",
+                    dataType: 'json',
+                    type: 'post',
+                    contentType: 'application/json',
+                    processData: false,
+                    data: JSON.stringify(id),
+                    async: true,
+                    success: function (response) {
+                        swal("Deleted!", "Your session Record has been Removed.", "success");
+                        LoadTables();
+                        tottaxAmtcalculate();
+                    },
+                    error: function (e) {
+                        swal("Oops", e.responseText, "error");
+                        LoadTables();
+                        tottaxAmtcalculate();
+                    }
+                });
+
+            });
+    }
+    function NewPurchaseSubmit() {
+        var tax = $("#tottax").val();
+        var amt = $("#totamt").val();
+        if ((tax !== "" && tax !== "0") && (amt !== "" && amt != "0")) {
+            $.ajax({
+                url: "/Stock/MekePuchaseWithBill/",
+                dataType: 'json',
+                type: 'post',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    'invno': $("#invoiceno").val(),
+                    'invdate': $("#invoicedate").val(),
+                    'suplier': $("#suplier").val(),
+                    'tax': $("#tottax").val(),
+                    'amt': $("#totamt").val(),
+                    'comment': $("#comment").val()
+                }),
+                processData: false,
+                async: true,
+                success: function (response) {
+                    $('#pname').val("");
+                    $('#cname').val("");
+                    $('#mrp').val("");
+                    $('#company').val("");
+                    $('#acp').val("");
+                    $('#qty').val("");
+                    $('#amt').val("");
+
+                    sweetAlert('Congratulations!', response.status, 'success');
+                    LoadTables();
+                    tottaxAmtcalculate();
+                },
+                error: function (e) {
+                    swal("Oops", e.responseText, "error");
+
+                }
+            });
+        }
+
+    }
+</script>

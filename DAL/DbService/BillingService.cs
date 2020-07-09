@@ -21,9 +21,19 @@ namespace DAL.DbService
             companyprofiles = database.GetCollection<companyprofile>("companyprofile");
             stocks = database.GetCollection<stock>("stock");
             branchs = database.GetCollection<branch>("MeterialType");
+            categorys = database.GetCollection<category>("category");
+            invoicess = database.GetCollection<invoice>("invoice");
+            purchases = database.GetCollection<purchase>("purchase");
+            saless = database.GetCollection<sales>("sales");
+            paymentss = database.GetCollection<payments>("payments");
+            productcompanys = database.GetCollection<productcompany>("productcompany");
+            producttypes = database.GetCollection<producttype>("producttype");
+            roles = database.GetCollection<role>("role");
+            logs = database.GetCollection<log>("log");
+            statecodes = database.GetCollection<statecode>("statecode");
 
         }
-
+        public IMongoCollection<statecode> statecodes { get; set; }
         public IMongoCollection<user> users { get; set; }
         public IMongoCollection<admin> admins { get; set; }
         public IMongoCollection<client> clients { get; set; }
@@ -31,5 +41,15 @@ namespace DAL.DbService
         public IMongoCollection<companyprofile> companyprofiles { get; set; }
         public IMongoCollection<stock> stocks { get; set; }
         public IMongoCollection<branch> branchs { get; set; }
+        public IMongoCollection<category> categorys { get; set; }
+        public IMongoCollection<invoice> invoicess { get; set; }
+        public IMongoCollection<payments> paymentss { get; set; }
+        public IMongoCollection<sales> saless { get; set; }
+        public IMongoCollection<purchase> purchases { get; set; }
+        public IMongoCollection<productcompany> productcompanys { get; set; }
+        public IMongoCollection<producttype> producttypes { get; set; }
+        public IMongoCollection<role> roles { get; set; }
+        public IMongoCollection<log> logs { get; set; }
+
     }
 }

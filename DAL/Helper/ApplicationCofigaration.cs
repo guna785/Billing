@@ -14,8 +14,8 @@ namespace DAL.Helper
             var path = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
             configBuilder.AddJsonFile(path, false);
             var root = configBuilder.Build();
-            var conStrConfig = root.GetSection("UpvcDatabaseSettings:ConnectionString");
-            var conDB = root.GetSection("UpvcDatabaseSettings:DatabaseName");
+            var conStrConfig = root.GetSection("BillingDatabaseSettings:ConnectionString");
+            var conDB = root.GetSection("BillingDatabaseSettings:DatabaseName");
             connectionString = conStrConfig.Value;
             DB = conDB.Value;
         }

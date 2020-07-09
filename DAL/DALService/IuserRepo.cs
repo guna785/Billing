@@ -12,7 +12,7 @@ namespace DAL.DALService
         Task<user> GetUserByPan(string uname);
         Task<IEnumerable<user>> GetUser();
 
-        Task<bool> InserUser(user _User);
+        Task<bool> InsertUser(user _User);
         Task<bool> UpdateUser(user _emp);
         Task<bool> DeleteUser(string id);
     }

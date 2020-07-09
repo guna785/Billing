@@ -42,7 +42,7 @@ namespace DAL.DALRepo
             return await context.users.Find<user>(a => a.Id.Equals(ID)).FirstOrDefaultAsync();
         }
 
-        public async Task<bool> InserUser(user _user)
+        public async Task<bool> InsertUser(user _user)
         {
             try
             {

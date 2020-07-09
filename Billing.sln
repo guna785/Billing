@@ -3,11 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30104.148
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Billing", "Billing\Billing.csproj", "{173A1954-95DE-4854-B376-23F6FD425248}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Billing", "Billing\Billing.csproj", "{173A1954-95DE-4854-B376-23F6FD425248}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DAL", "DAL\DAL.csproj", "{D43FE69A-7BA8-4846-AF4B-A4B9C11DDFDB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DAL", "DAL\DAL.csproj", "{D43FE69A-7BA8-4846-AF4B-A4B9C11DDFDB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BL", "BL\BL.csproj", "{340A9AAE-0078-4112-B8BB-BEE00610CD0E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BL", "BL\BL.csproj", "{340A9AAE-0078-4112-B8BB-BEE00610CD0E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SchemaGenerator", "SchemaGenerator\SchemaGenerator.csproj", "{64C21F35-490A-4D95-910B-85B8CD678ABB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{340A9AAE-0078-4112-B8BB-BEE00610CD0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{340A9AAE-0078-4112-B8BB-BEE00610CD0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{340A9AAE-0078-4112-B8BB-BEE00610CD0E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64C21F35-490A-4D95-910B-85B8CD678ABB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64C21F35-490A-4D95-910B-85B8CD678ABB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64C21F35-490A-4D95-910B-85B8CD678ABB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64C21F35-490A-4D95-910B-85B8CD678ABB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

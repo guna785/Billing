@@ -12,7 +12,7 @@ namespace DAL.DALService
         Task<admin> GetAdminByPan(string uname);
         Task<IEnumerable<admin>> GetAdmin();
 
-        Task<bool> InserAdmin(admin _admin);
+        Task<bool> InsertAdmin(admin _admin);
         Task<bool> UpdateAdmin(admin _admin);
         Task<bool> DeleteAdmin(string id);
     }
