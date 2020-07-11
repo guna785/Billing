@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Billing.Models;
 using Billing.Services;
+using BL.BLService;
 using DAL.Helper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -21,16 +22,68 @@ namespace Billing.Controllers
         private readonly IAuthenticateService _authenticate;
         private readonly IUserRefreshTokenRepository _userRefreshToken;
         private readonly IConfiguration _configuration;
+        private readonly IAdminRepository _admin;
 
-        public LoginController(IAuthenticateService authenticate, IUserRefreshTokenRepository userRefreshToken, IConfiguration configuration)
+        public LoginController(IAuthenticateService authenticate, IUserRefreshTokenRepository userRefreshToken, IConfiguration configuration,
+                                IAdminRepository admin)
         {
             _authenticate = authenticate;
             _userRefreshToken = userRefreshToken;
             _configuration = configuration;
+            _admin = admin;
         }
         public IActionResult Index()
         {
+            if (HttpContext.Session.GetString("err") != null)
+            {
+                ViewBag.err = HttpContext.Session.GetString("err");
+                HttpContext.Session.Remove("err");
+            }
+            else
+            {
+                ViewBag.err = "";
+            }
             return View();
+        }
+        public IActionResult ForgetPassword()
+        {
+            if (HttpContext.Session.GetString("err") != null)
+            {
+                ViewBag.err = HttpContext.Session.GetString("err");
+                HttpContext.Session.Remove("err");
+            }
+            else
+            {
+                ViewBag.err = "";
+            }
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> PassChange()
+        {
+            var newpass = HttpContext.Request.Form["newpass"];
+            var comfirmpass = HttpContext.Request.Form["comfirmpass"];
+            if (newpass.Equals(comfirmpass))
+            {
+                var adm =await _admin.GetAdmin();
+                var a = adm.FirstOrDefault();
+                a.password = newpass;
+                var res =await _admin.UpdateAdmin(a);
+                if (res.Contains("successfull"))
+                {
+                    return Redirect("/Login/");
+                }
+                else
+                {
+                    HttpContext.Session.SetString("err", res);
+                    return Redirect("/Login/ForgetPassword");
+                }
+            }
+            else
+            {
+                HttpContext.Session.SetString("err", "Password and ConfirmPassword Not Match");
+                return Redirect("/Login/ForgetPassword");
+            }
         }
         [HttpPost]
         public async Task<IActionResult> LoginSubmit()
@@ -44,7 +97,8 @@ namespace Billing.Controllers
             }
             else
             {
-                return Unauthorized(res);
+                HttpContext.Session.SetString("err", "User Name / Password Error");
+                return Redirect("/Login/");
             }
 
         }

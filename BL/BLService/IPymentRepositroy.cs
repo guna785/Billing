@@ -9,11 +9,11 @@ namespace BL.BLService
     public interface IPymentRepositroy
     {
         Task<payments> GetPaymentsID(string ID);
-        Task<payments> GetPaymentsByPaymentsID(string PaymentsId);
+        Task<payments> GetPaymentsByPaymentsID(string PaymentsId, bool isTaxed);
         Task<IEnumerable<payments>> GetPayments();
 
-        Task<string> InsertPayments(payments _payments);
-        Task<string> UpdatePayments(payments _payments);
+        Task<string> InsertPayments(payments _payments, bool isTaxed);
+        Task<string> UpdatePayments(payments _payments, bool isTaxed);
         Task<string> DeletePayments(string id);
     }
 }

@@ -1,0 +1,83 @@
+﻿
+@{
+    ViewData["Title"] = "Reporting";
+}
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Client</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                        <form asp-action="ReportGet"  asp-controller="Home" method="post">
+                            <div class="row">
+                                <div class="form-group col-md-4">
+                                    <label>Select Date Range</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="far fa-clock"></i></span>
+                                        </div>
+                                        <input name="rdate" type="text" class="form-control float-right" id="reservationtime">
+                                    </div>
+                                </div>
+                                <div class="form-group  col-md-4">
+                                    <label>Select Report Type</label>
+                                    <select name="rtype" class="form-control select2" id="client" onchange="selectGST();" name="client" style="width: 100%;">
+                                        <option value="Active Sales">Active Sales</option>
+                                        <option value="Active purchase">Active Purchases</option>
+                                        <option value="Canceled Sales">Canceled Sales</option>
+                                        <option value="Canceled purchase">Canceled Purchases</option>
+                                        <option value="All Sales">All Sales</option>
+                                        <option value="All purchase">All Purchases</option>
+                                        <option value="All Invoices">All Invoices</option>
+                                        <option value="Paid Invoices">Paid Invoices</option>
+                                        <option value="UnPaid Invoices">UnPaid Invoices</option>
+                                        <option value="All Payments">All Payments</option>
+                                        <option value="Clients">Clients</option>
+                                        <option value="Supliers">Supliers</option>
+                                        <option value="Employees">Employees</option>
+                                        <option value="All Stock">All Stock</option>
+
+
+
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <br />
+                                    <input type="submit" class=" btn btn-primary" value="Submit" />
+                                </div>
+                            </div>
+                        </form>
+                       
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    $('.select2').select2()
+    //Date range picker with time picker
+    $('#reservationtime').daterangepicker({
+        timePicker: true,
+        timePickerIncrement: 30,
+        locale: {
+            format: 'MM/DD/YYYY hh:mm A'
+        }
+    })
+</script>

@@ -9,7 +9,7 @@ namespace DAL.DALService
     public interface IPaymentRepo
     {
         Task<payments> GetPaymentsID(string ID);
-        Task<payments> GetPaymentsByPaymentsID(string PaymentsId);
+        Task<payments> GetPaymentsByPaymentsID(string PaymentsId, bool isTaxed);
         Task<IEnumerable<payments>> GetPayments();
 
         Task<bool> InsertPayments(payments _payments);

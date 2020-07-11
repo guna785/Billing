@@ -32,14 +32,14 @@ namespace DAL.DALRepo
             return await context.invoicess.Find(x => true).ToListAsync();
         }
 
-        public async Task<invoice> GetInvoiceByInvoiceID(string invoiceId)
+        public async Task<invoice> GetInvoiceByInvoiceID(string invoiceId, bool isTaxed)
         {
-            return await context.invoicess.Find<invoice>(a => a.invid.Equals(invoiceId)).FirstOrDefaultAsync();
+            return await context.invoicess.Find<invoice>(a => a.invid.Equals(invoiceId) && a.isTaxed==isTaxed).FirstOrDefaultAsync();
         }
 
         public async Task<invoice> GetInvoiceID(string ID)
         {
-            return await context.invoicess.Find<invoice>(a => a.Id.Equals(ID)).FirstOrDefaultAsync();
+            return await context.invoicess.Find<invoice>(a => a.Id.Equals(ID) ).FirstOrDefaultAsync();
         }
 
         public async Task<bool> InsertInvoice(invoice _invoice)

@@ -33,9 +33,9 @@ namespace DAL.DALRepo
             return await context.paymentss.Find(x => true).ToListAsync();
         }
 
-        public async Task<payments> GetPaymentsByPaymentsID(string PaymentsId)
+        public async Task<payments> GetPaymentsByPaymentsID(string PaymentsId, bool isTaxed)
         {
-            return await context.paymentss.Find<payments>(a => a.pid.Equals(PaymentsId)).FirstOrDefaultAsync();
+            return await context.paymentss.Find<payments>(a => a.pid.Equals(PaymentsId) && a.isTaxed==isTaxed).FirstOrDefaultAsync();
         }
 
         public async Task<payments> GetPaymentsID(string ID)

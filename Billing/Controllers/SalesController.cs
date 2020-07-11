@@ -42,14 +42,14 @@ namespace Billing.Controllers
             var py = await _pyment.GetPayments();
             var i = inv.Where(x => x.sid.Equals(s.sid)).FirstOrDefault();
             i.status = "Canceled";
-            var res = await _invoice.UpdateInvoice(i);
+            var res = await _invoice.UpdateInvoice(i,true);
             var pm = py.Where(x => x.sid.Equals(s.sid)).ToList();
             foreach (var p in pm)
             {
                 p.status = "Canceled";
-                res = await _pyment.UpdatePayments(p);
+                res = await _pyment.UpdatePayments(p,true);
             }
-            res = await _sales.UpdateSales(s);
+            res = await _sales.UpdateSales(s,true);
             if (res.Contains("successfull"))
             {
                 var result = new { status = "Sales is Cancelled successfully" };
@@ -58,6 +58,49 @@ namespace Billing.Controllers
                     cdate = DateTime.Now,
                     message = "Sales " + i.sid + " Canceled Sucessfully",
                     name = "Event",
+                    isTaxed=true,
+                    uid = HttpContext.User.Identity.Name
+                };
+                res = await _log.InsertLogs(l);
+                return Ok(result);
+            }
+            else
+            {
+                return BadRequest(res);
+            }
+        }
+        public async Task<IActionResult> CancelNonTaxSales([FromBody] string id)
+        {
+            var s = await _sales.GetSalesID(id);
+            s.status = "Canceled";
+            foreach (var item in s.content)
+            {
+                var stk = await _stock.GetStockID(item.pid);
+                var qty = Convert.ToInt32(stk.nonTaxQty) + Convert.ToInt32(item.qty);
+                stk.nonTaxQty = qty.ToString();
+                var r = await _stock.UpdateStock(stk);
+            }
+            var inv = await _invoice.GetInvoice();
+            var py = await _pyment.GetPayments();
+            var i = inv.Where(x => x.sid.Equals(s.sid)).FirstOrDefault();
+            i.status = "Canceled";
+            var res = await _invoice.UpdateInvoice(i, false);
+            var pm = py.Where(x => x.sid.Equals(s.sid)).ToList();
+            foreach (var p in pm)
+            {
+                p.status = "Canceled";
+                res = await _pyment.UpdatePayments(p, false);
+            }
+            res = await _sales.UpdateSales(s, false);
+            if (res.Contains("successfull"))
+            {
+                var result = new { status = "Sales is Cancelled successfully" };
+                var l = new log()
+                {
+                    cdate = DateTime.Now,
+                    message = "Sales " + i.sid + " Canceled Sucessfully",
+                    name = "Event",
+                    isTaxed=false,
                     uid = HttpContext.User.Identity.Name
                 };
                 res = await _log.InsertLogs(l);

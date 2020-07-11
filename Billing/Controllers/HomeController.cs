@@ -13,6 +13,10 @@ using BL.SchemaEditBuilder;
 using BL.BLService;
 using Rotativa.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
+using System.IO;
+using OfficeOpenXml;
+using Billing.Helper;
+using System.Data;
 
 namespace Billing.Controllers
 {
@@ -29,9 +33,12 @@ namespace Billing.Controllers
         private readonly IInvoiceRepository _invoice;
         private readonly IPymentRepositroy _pyment;
         private readonly ICompanyProfileRepository _company;
+        private readonly IUserRepository _user;
+        private readonly IStocksRepository _stock;
+        private const string XlsxContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
         public HomeController(ILogger<HomeController> logger, EditBuilder builder, ISuplierRepository suplier, IClientRepostory client,
                         IPurchaseRepository purchase, ISalesRepository sales, IInvoiceRepository invoice,IPymentRepositroy pyment,
-                        ICompanyProfileRepository company)
+                        ICompanyProfileRepository company, IUserRepository user, IStocksRepository stock)
         {
             _logger = logger;
             _builder = builder;
@@ -42,6 +49,8 @@ namespace Billing.Controllers
             _invoice = invoice;
             _pyment = pyment;
             _company = company;
+            _user = user;
+            _stock = stock;
         }
 
         public async Task<IActionResult> Index()
@@ -51,20 +60,44 @@ namespace Billing.Controllers
             var cl = await _client.GetClient();
             var sup =await _suplier.GetSuplier();
            
-            ViewBag.newsales =( s.Where(x => x.cdate.Date> DateTime.Now.Date && x.status != "Canceled").Select(x => Convert.ToDouble( x.tamt)).ToList()).Sum();
-            ViewBag.totalsales = (s.Where(x => x.cdate.Month == DateTime.Now.Month && x.status != "Canceled").Select(x => Convert.ToDouble(x.tamt)).ToList()).Sum();
-            ViewBag.newpurchase = (s.Where(x => x.cdate > DateTime.Now.Date && x.status != "Canceled").Select(x => Convert.ToDouble(x.tamt)).ToList()).Sum();
+            ViewBag.newsales =( s.Where(x => x.cdate.Date> DateTime.Now.Date && x.isTaxed && x.status != "Canceled").Select(x => Convert.ToDouble( x.tamt)).ToList()).Sum();
+            ViewBag.totalsales = (s.Where(x => x.cdate.Month == DateTime.Now.Month && x.isTaxed && x.status != "Canceled").Select(x => Convert.ToDouble(x.tamt)).ToList()).Sum();
+            ViewBag.newpurchase = (s.Where(x => x.cdate > DateTime.Now.Date && x.isTaxed && x.status != "Canceled").Select(x => Convert.ToDouble(x.tamt)).ToList()).Sum();
+            ViewBag.totalpuchase = (s.Where(x => x.cdate.Month == DateTime.Now.Month && x.isTaxed && x.status != "Canceled").Select(x => Convert.ToDouble(x.tamt)).ToList()).Sum();
+            ViewBag.clients = cl.Count();
+            ViewBag.supliers = sup.Count();
+            ViewBag.csls = (s.Where(x => x.cdate.Month == DateTime.Now.Month && x.isTaxed && x.status=="Canceled").Select(x => Convert.ToDouble(x.tamt)).ToList()).Sum();
+            ViewBag.sprs = (p.Where(x => x.cdate.Month == DateTime.Now.Month && x.isTaxed && x.status == "Canceled").Select(x => Convert.ToDouble(x.tamt)).ToList()).Sum();
+            return View();
+        }
+
+        public async Task<IActionResult> NonTaxDashBoard()
+        {
+            var p = await _purchase.GetPurchase();
+            var s = await _sales.GetSales();
+            var cl = await _client.GetClient();
+            var sup = await _suplier.GetSuplier();
+
+            ViewBag.newsales = (s.Where(x => x.cdate.Date > DateTime.Now.Date && !x.isTaxed && x.status != "Canceled").Select(x => Convert.ToDouble(x.tamt)).ToList()).Sum();
+            ViewBag.totalsales = (s.Where(x => x.cdate.Month == DateTime.Now.Month && !x.isTaxed && x.status != "Canceled").Select(x => Convert.ToDouble(x.tamt)).ToList()).Sum();
+            ViewBag.newpurchase = (s.Where(x => x.cdate > DateTime.Now.Date  && x.status != "Canceled").Select(x => Convert.ToDouble(x.tamt)).ToList()).Sum();
             ViewBag.totalpuchase = (s.Where(x => x.cdate.Month == DateTime.Now.Month  && x.status != "Canceled").Select(x => Convert.ToDouble(x.tamt)).ToList()).Sum();
             ViewBag.clients = cl.Count();
             ViewBag.supliers = sup.Count();
-            ViewBag.csls = (s.Where(x => x.cdate.Month == DateTime.Now.Month && x.status=="Canceled").Select(x => Convert.ToDouble(x.tamt)).ToList()).Sum();
-            ViewBag.sprs = (s.Where(x => x.cdate.Month == DateTime.Now.Month && x.status == "Canceled").Select(x => Convert.ToDouble(x.tamt)).ToList()).Sum();
+            ViewBag.csls = (s.Where(x => x.cdate.Month == DateTime.Now.Month && !x.isTaxed && x.status == "Canceled").Select(x => Convert.ToDouble(x.tamt)).ToList()).Sum();
+            ViewBag.sprs = (p.Where(x => x.cdate.Month == DateTime.Now.Month  && x.status == "Canceled").Select(x => Convert.ToDouble(x.tamt)).ToList()).Sum();
             return View();
         }
+
 
         public IActionResult Stock()
         {
             return View();
+        }
+        public IActionResult UntaxedStock()
+        {
+            return View();
+            
         }
         public IActionResult Caytogory()
         {
@@ -95,7 +128,15 @@ namespace Billing.Controllers
         {
             return View();
         }
+        public IActionResult NonTaxInvoices()
+        {
+            return View();
+        }
         public IActionResult Payments()
+        {
+            return View();
+        }
+        public IActionResult NonTaxPayments()
         {
             return View();
         }
@@ -113,7 +154,16 @@ namespace Billing.Controllers
             ViewBag.cus = await _client.GetClient();
             return View();
         }
+        public async Task<IActionResult> NonTaxSales()
+        {
+            ViewBag.cus = await _client.GetClient();
+            return View();
+        }
         public IActionResult ViewSales()
+        {
+            return View();
+        }
+        public IActionResult ViewNonTaxSales()
         {
             return View();
         }
@@ -125,7 +175,7 @@ namespace Billing.Controllers
         public async Task<IActionResult> bill(string id)
         {
             var inv = await _invoice.GetInvoiceID(id);
-            var sls = await _sales.GetSalesBySalesID(inv.sid);
+            var sls = await _sales.GetSalesBySalesID(inv.sid,true);
             var clt = await _client.GetClientByPhone(sls.clid);
             var prof = await _company.GetCompanyProfile();
             var bill = new bill()
@@ -141,7 +191,7 @@ namespace Billing.Controllers
         public async Task<IActionResult> reciept(string id)
         {
             var py = await _pyment.GetPaymentsID(id);
-            var sls = await _sales.GetSalesBySalesID(py.sid);
+            var sls = await _sales.GetSalesBySalesID(py.sid,true);
             var clt = await _client.GetClientByPhone(sls.clid);
             var prof = await _company.GetCompanyProfile();
             var voucher = new reciept()
@@ -152,6 +202,106 @@ namespace Billing.Controllers
                 prof = prof.FirstOrDefault()
             };
             return new ViewAsPdf("reciept", voucher,null);
+        }
+        public IActionResult Reporting()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> ReportGet()
+        {
+            var rdate = HttpContext.Request.Form["rdate"].ToString();
+            var frmDate = Convert.ToDateTime(rdate.Split('-')[0]);
+            var toDate = Convert.ToDateTime(rdate.Split('-')[1]);
+
+            var rtype = HttpContext.Request.Form["rtype"];
+            byte[] data = null;
+            if (rtype == "Active Sales")
+            {
+                var rep = await _sales.GetSales();
+
+                data = ExcelHelper.CreateExcelPackage(rep.Where(x=>x.status=="active" && x.cdate>=frmDate && x.cdate<=toDate).ToDataTable());
+            }
+            else if (rtype == "Active purchase")
+            {
+                var rep = await _purchase.GetPurchase();
+
+                data = ExcelHelper.CreateExcelPackage(rep.Where(x => x.status == "active" && x.cdate >= frmDate && x.cdate <= toDate).ToDataTable());
+            }
+            else if (rtype == "Canceled Sales")
+            {
+                var rep = await _sales.GetSales();
+
+                data = ExcelHelper.CreateExcelPackage(rep.Where(x => x.status == "Canceled" && x.cdate >= frmDate && x.cdate <= toDate).ToDataTable());
+            }
+            else if (rtype == "Canceled purchase")
+            {
+                var rep = await _purchase.GetPurchase();
+
+                data = ExcelHelper.CreateExcelPackage(rep.Where(x => x.status == "Canceled" && x.cdate >= frmDate && x.cdate <= toDate).ToDataTable());
+            }
+            else if (rtype == "All Sales")
+            {
+                var rep = await _sales.GetSales();
+
+                data = ExcelHelper.CreateExcelPackage(rep.Where( x=>x.cdate >= frmDate && x.cdate <= toDate).ToDataTable());
+            }
+            else if (rtype == "All purchase")
+            {
+                var rep = await _purchase.GetPurchase();
+
+                data = ExcelHelper.CreateExcelPackage(rep.Where(x=>x.cdate >= frmDate && x.cdate <= toDate).ToDataTable());
+            }
+            else if (rtype == "All Invoices")
+            {
+                var rep = await _invoice.GetInvoice();
+
+                data = ExcelHelper.CreateExcelPackage(rep.Where(x => x.cdate >= frmDate && x.cdate <= toDate).ToDataTable());
+            }
+            else if (rtype == "Paid Invoices")
+            {
+                var rep = await _invoice.GetInvoice();
+
+                data = ExcelHelper.CreateExcelPackage(rep.Where(x=>x.status=="Paid" && x.cdate >= frmDate && x.cdate <= toDate).ToDataTable());
+            }
+            else if (rtype == "UnPaid Invoices")
+            {
+                var rep = await _invoice.GetInvoice();
+
+                data = ExcelHelper.CreateExcelPackage(rep.Where(x => x.status == "UnPaid" && x.cdate >= frmDate && x.cdate <= toDate).ToDataTable());
+            }
+            else if (rtype == "All Payments")
+            {
+                var rep = await _pyment.GetPayments();
+
+                data = ExcelHelper.CreateExcelPackage(rep.Where(x => x.cdate >= frmDate && x.cdate <= toDate).ToDataTable());
+            }
+            else if (rtype == "Clients")
+            {
+                var rep = await _client.GetClient();
+
+                data = ExcelHelper.CreateExcelPackage(rep.ToDataTable());
+            }
+            else if (rtype == "Supliers")
+            {
+                var rep = await _suplier.GetSuplier();
+
+                data = ExcelHelper.CreateExcelPackage(rep.ToDataTable());
+            }
+            else if (rtype == "Employees")
+            {
+                var rep = await _user.GetUser();
+
+                data = ExcelHelper.CreateExcelPackage(rep.ToDataTable());
+            }
+            else if (rtype == "All Stock")
+            {
+                var rep = await _stock.GetStock();
+
+                data = ExcelHelper.CreateExcelPackage(rep.ToDataTable());
+            }
+            
+            return File(data, XlsxContentType, "report.xlsx"); 
         }
         public IActionResult companyProfile()
         {
@@ -173,6 +323,7 @@ namespace Billing.Controllers
             {
                 var objId = ID.Split('-')[1];
                 var data = await _builder.ReturnObjectData<EditStock>(objId);
+                data.qty = "0";
                 ViewBag.val = Newtonsoft.Json.JsonConvert.SerializeObject(data);
 
                 schema = await GSgenerator.GenerateSchema<EditStock>();

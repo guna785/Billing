@@ -9,7 +9,7 @@ namespace DAL.DALService
     public interface ISalesRepo
     {
         Task<sales> GetSalesID(string ID);
-        Task<sales> GetSalesBySalesID(string salesId);
+        Task<sales> GetSalesBySalesID(string salesId, bool isTaxed);
         Task<IEnumerable<sales>> GetSales();
 
         Task<bool> InsertSales(sales _sales);

@@ -445,7 +445,60 @@ namespace Billing.Controllers
             // now just get the count of items (without the skip and take) - eg how many could be returned with filtering
             var filteredResultsCount = result.Count();
             var cntdb = await _invoice.GetInvoice();
-            var totalResultsCount = cntdb.Count();
+            var totalResultsCount = cntdb.Where(x => x.isTaxed).ToList().Count();
+
+            return Json(new
+            {
+                draw = dtParameters.Draw,
+                recordsTotal = totalResultsCount,
+                recordsFiltered = filteredResultsCount,
+                data = result
+                    .Skip(dtParameters.Start)
+                    .Take(dtParameters.Length)
+                    .ToList()
+            });
+        }
+        [HttpPost]
+        public async Task<IActionResult> LoadNonTaxInvoicesTables([FromBody] DtParameters dtParameters)
+        {
+            var searchBy = dtParameters.Search?.Value;
+
+            var orderCriteria = string.Empty;
+            var orderAscendingDirection = true;
+
+            if (dtParameters.Order != null)
+            {
+                // in this example we just default sort on the 1st column
+                orderCriteria = dtParameters.Columns[dtParameters.Order[0].Column].Data;
+                orderAscendingDirection = dtParameters.Order[0].Dir.ToString().ToLower() == "asc";
+            }
+            else
+            {
+                // if we have an empty search then just order the results by Id ascending
+                orderCriteria = "Id";
+                orderAscendingDirection = true;
+            }
+
+            var resu = await _invoice.GetInvoice();
+            var result = resu.Where(x => !x.isTaxed && x.status != "Canceled").ToList();
+
+            if (!string.IsNullOrEmpty(searchBy))
+            {
+                result = result.Where(r => r.invid != null && r.invid.ToUpper().Contains(searchBy.ToUpper()) ||
+                                           r.sid != null && r.sid.ToUpper().Contains(searchBy.ToUpper()) ||
+                                           r.paid != null && r.paid.ToUpper().Contains(searchBy.ToUpper()) ||
+                                           r.amt != null && r.amt.ToUpper().Contains(searchBy.ToUpper()) ||
+                                           r.balance != null && r.balance.ToUpper().Contains(searchBy.ToUpper()) ||
+                                            r.status != null && r.status.ToUpper().Contains(searchBy.ToUpper()))
+                    .ToList();
+            }
+
+            result = orderAscendingDirection ? result.AsQueryable().OrderByDynamic(orderCriteria, DtOrderDir.Asc).ToList() : result.AsQueryable().OrderByDynamic(orderCriteria, DtOrderDir.Desc).ToList();
+
+            // now just get the count of items (without the skip and take) - eg how many could be returned with filtering
+            var filteredResultsCount = result.Count();
+            var cntdb = await _invoice.GetInvoice();
+            var totalResultsCount = cntdb.Where(x => !x.isTaxed).ToList().Count();
 
             return Json(new
             {
@@ -496,8 +549,61 @@ namespace Billing.Controllers
 
             // now just get the count of items (without the skip and take) - eg how many could be returned with filtering
             var filteredResultsCount = result.Count();
-            var cntdb = await _invoice.GetInvoice();
-            var totalResultsCount = cntdb.Count();
+            var cntdb = await _pyment.GetPayments();
+            var totalResultsCount = cntdb.Where(x => x.isTaxed).ToList().Count();
+
+            return Json(new
+            {
+                draw = dtParameters.Draw,
+                recordsTotal = totalResultsCount,
+                recordsFiltered = filteredResultsCount,
+                data = result
+                    .Skip(dtParameters.Start)
+                    .Take(dtParameters.Length)
+                    .ToList()
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> LoadNonTaxPaymentsTables([FromBody] DtParameters dtParameters)
+        {
+            var searchBy = dtParameters.Search?.Value;
+
+            var orderCriteria = string.Empty;
+            var orderAscendingDirection = true;
+
+            if (dtParameters.Order != null)
+            {
+                // in this example we just default sort on the 1st column
+                orderCriteria = dtParameters.Columns[dtParameters.Order[0].Column].Data;
+                orderAscendingDirection = dtParameters.Order[0].Dir.ToString().ToLower() == "asc";
+            }
+            else
+            {
+                // if we have an empty search then just order the results by Id ascending
+                orderCriteria = "Id";
+                orderAscendingDirection = true;
+            }
+
+            var resu = await _pyment.GetPayments();
+            var result = resu.Where(x => !x.isTaxed && x.status != "Canceled").ToList();
+            if (!string.IsNullOrEmpty(searchBy))
+            {
+                result = result.Where(r => r.invid != null && r.invid.ToUpper().Contains(searchBy.ToUpper()) ||
+                                           r.sid != null && r.sid.ToUpper().Contains(searchBy.ToUpper()) ||
+                                           r.pid != null && r.pid.ToUpper().Contains(searchBy.ToUpper()) ||
+                                           r.amt != null && r.amt.ToUpper().Contains(searchBy.ToUpper()) ||
+                                           r.userid != null && r.userid.ToUpper().Contains(searchBy.ToUpper()) ||
+                                            r.status != null && r.status.ToUpper().Contains(searchBy.ToUpper()))
+                    .ToList();
+            }
+
+            result = orderAscendingDirection ? result.AsQueryable().OrderByDynamic(orderCriteria, DtOrderDir.Asc).ToList() : result.AsQueryable().OrderByDynamic(orderCriteria, DtOrderDir.Desc).ToList();
+
+            // now just get the count of items (without the skip and take) - eg how many could be returned with filtering
+            var filteredResultsCount = result.Count();
+            var cntdb = await _pyment.GetPayments();
+            var totalResultsCount = cntdb.Where(x => !x.isTaxed).ToList().Count();
 
             return Json(new
             {
@@ -531,8 +637,8 @@ namespace Billing.Controllers
                 orderAscendingDirection = true;
             }
 
-            var result = await _logs.GetLogs();
-
+            var res = await _logs.GetLogs();
+            var result = res.Where(x => x.isTaxed).ToList();
             if (!string.IsNullOrEmpty(searchBy))
             {
                 result = result.Where(r => r.name != null && r.name.ToUpper().Contains(searchBy.ToUpper()) ||
@@ -546,7 +652,7 @@ namespace Billing.Controllers
             // now just get the count of items (without the skip and take) - eg how many could be returned with filtering
             var filteredResultsCount = result.Count();
             var cntdb = await _logs.GetLogs();
-            var totalResultsCount = cntdb.Count();
+            var totalResultsCount = cntdb.Where(x => x.isTaxed).ToList().Count();
 
             return Json(new
             {
@@ -656,8 +762,8 @@ namespace Billing.Controllers
 
             // now just get the count of items (without the skip and take) - eg how many could be returned with filtering
             var filteredResultsCount = result.Count();
-            var cntdb = await _logs.GetLogs();
-            var totalResultsCount = cntdb.Count();
+            var cntdb = await _purchase.GetPurchase();
+            var totalResultsCount = cntdb.Where(x => x.isTaxed).ToList().Count();
 
             return Json(new
             {
@@ -706,7 +812,57 @@ namespace Billing.Controllers
             // now just get the count of items (without the skip and take) - eg how many could be returned with filtering
             var filteredResultsCount = result.Count();
             var cntdb = await _sales.GetSales();
-            var totalResultsCount = cntdb.Count();
+            var totalResultsCount = cntdb.Where(x => x.isTaxed).ToList().Count();
+
+            return Json(new
+            {
+                draw = dtParameters.Draw,
+                recordsTotal = totalResultsCount,
+                recordsFiltered = filteredResultsCount,
+                data = result
+                    .Skip(dtParameters.Start)
+                    .Take(dtParameters.Length)
+                    .ToList()
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> LoadNonTaxSalesTables([FromBody] DtParameters dtParameters)
+        {
+            var searchBy = dtParameters.Search?.Value;
+
+            var orderCriteria = string.Empty;
+            var orderAscendingDirection = true;
+
+            if (dtParameters.Order != null)
+            {
+                // in this example we just default sort on the 1st column
+                orderCriteria = dtParameters.Columns[dtParameters.Order[0].Column].Data;
+                orderAscendingDirection = dtParameters.Order[0].Dir.ToString().ToLower() == "asc";
+            }
+            else
+            {
+                // if we have an empty search then just order the results by Id ascending
+                orderCriteria = "Id";
+                orderAscendingDirection = true;
+            }
+
+            var resu = await _sales.GetSales();
+            var result = resu.Where(x => !x.isTaxed && x.status != "Canceled").ToList();
+            if (!string.IsNullOrEmpty(searchBy))
+            {
+                result = result.Where(r => r.sid != null && r.sid.ToUpper().Contains(searchBy.ToUpper()) ||
+                                           r.gst != null && r.gst.ToUpper().Contains(searchBy.ToUpper()) ||
+                                           r.status != null && r.status.ToUpper().Contains(searchBy.ToUpper()))
+                    .ToList();
+            }
+
+            result = orderAscendingDirection ? result.AsQueryable().OrderByDynamic(orderCriteria, DtOrderDir.Asc).ToList() : result.AsQueryable().OrderByDynamic(orderCriteria, DtOrderDir.Desc).ToList();
+
+            // now just get the count of items (without the skip and take) - eg how many could be returned with filtering
+            var filteredResultsCount = result.Count();
+            var cntdb = await _sales.GetSales();
+            var totalResultsCount = cntdb.Where(x => !x.isTaxed).ToList().Count();
 
             return Json(new
             {

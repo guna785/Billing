@@ -42,9 +42,9 @@ namespace BL.BLRepo
             return await _repo.GetPayments();
         }
 
-        public async Task<payments> GetPaymentsByPaymentsID(string PaymentsId)
+        public async Task<payments> GetPaymentsByPaymentsID(string PaymentsId, bool isTaxed)
         {
-            return await _repo.GetPaymentsByPaymentsID(PaymentsId);
+            return await _repo.GetPaymentsByPaymentsID(PaymentsId,isTaxed);
         }
 
         public async Task<payments> GetPaymentsID(string ID)
@@ -52,9 +52,9 @@ namespace BL.BLRepo
             return await _repo.GetPaymentsID(ID);
         }
 
-        public async Task<string> InsertPayments(payments _payments)
+        public async Task<string> InsertPayments(payments _payments,bool isTaxed)
         {
-            var adm = await _repo.GetPaymentsByPaymentsID(_payments.pid);
+            var adm = await _repo.GetPaymentsByPaymentsID(_payments.pid,isTaxed);
             if (adm == null)
             {
                 var res = await _repo.InsertPayments(_payments);
@@ -74,9 +74,9 @@ namespace BL.BLRepo
             }
         }
 
-        public async Task<string> UpdatePayments(payments _payments)
+        public async Task<string> UpdatePayments(payments _payments, bool isTaxed)
         {
-            var adm = await _repo.GetPaymentsByPaymentsID(_payments.pid);
+            var adm = await _repo.GetPaymentsByPaymentsID(_payments.pid,isTaxed);
             if (adm != null)
             {
                 //_Payments.Id = adm.Id;

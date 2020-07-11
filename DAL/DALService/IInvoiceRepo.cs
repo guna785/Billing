@@ -9,7 +9,7 @@ namespace DAL.DALService
     public interface IInvoiceRepo
     {
         Task<invoice> GetInvoiceID(string ID);
-        Task<invoice> GetInvoiceByInvoiceID(string invoiceId);
+        Task<invoice> GetInvoiceByInvoiceID(string invoiceId, bool isTaxed);
         Task<IEnumerable<invoice>> GetInvoice();
 
         Task<bool> InsertInvoice(invoice _invoice);

@@ -42,9 +42,9 @@ namespace BL.BLRepo
             return await _repo.GetInvoice();
         }
 
-        public async Task<invoice> GetInvoiceByInvoiceID(string invoiceId)
+        public async Task<invoice> GetInvoiceByInvoiceID(string invoiceId, bool isTaxed)
         {
-            return await _repo.GetInvoiceByInvoiceID(invoiceId);
+            return await _repo.GetInvoiceByInvoiceID(invoiceId,isTaxed);
         }
 
         public async Task<invoice> GetInvoiceID(string ID)
@@ -52,9 +52,9 @@ namespace BL.BLRepo
             return await _repo.GetInvoiceID(ID);
         }
 
-        public async  Task<string> InsertInvoice(invoice _invoice)
+        public async  Task<string> InsertInvoice(invoice _invoice,bool isTaxed)
         {
-            var adm = await _repo.GetInvoiceByInvoiceID(_invoice.invid);
+            var adm = await _repo.GetInvoiceByInvoiceID(_invoice.invid, isTaxed);
             if (adm == null)
             {
                 var res = await _repo.InsertInvoice(_invoice);
@@ -74,9 +74,9 @@ namespace BL.BLRepo
             }
         }
 
-        public async Task<string> UpdateInvoice(invoice _invoice)
+        public async Task<string> UpdateInvoice(invoice _invoice, bool isTaxed)
         {
-            var adm = await _repo.GetInvoiceByInvoiceID(_invoice.invid);
+            var adm = await _repo.GetInvoiceByInvoiceID(_invoice.invid,isTaxed);
             if (adm != null)
             {
                 //_Invoice.Id = adm.Id;

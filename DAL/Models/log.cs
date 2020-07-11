@@ -14,6 +14,7 @@ namespace DAL.Models
         public string name { get; set; }
         public string uid { get; set; }
         public string message { get; set; }
+        public bool isTaxed { get; set; }
 
         public DateTime cdate { get; set; }
     }

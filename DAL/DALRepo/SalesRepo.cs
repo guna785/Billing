@@ -32,9 +32,9 @@ namespace DAL.DALRepo
             return await context.saless.Find(x => true).ToListAsync();
         }
 
-        public async Task<sales> GetSalesBySalesID(string salesId)
+        public async Task<sales> GetSalesBySalesID(string salesId, bool isTaxed)
         {
-            return await context.saless.Find<sales>(a => a.sid.Equals(salesId)).FirstOrDefaultAsync();
+            return await context.saless.Find<sales>(a => a.sid.Equals(salesId) && a.isTaxed==isTaxed).FirstOrDefaultAsync();
         }
 
         public async Task<sales> GetSalesID(string ID)

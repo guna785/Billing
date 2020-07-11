@@ -42,9 +42,9 @@ namespace BL.BLRepo
             return await _repo.GetSales();
         }
 
-        public async Task<sales> GetSalesBySalesID(string salesId)
+        public async Task<sales> GetSalesBySalesID(string salesId, bool isTaxed)
         {
-            return await _repo.GetSalesBySalesID(salesId);
+            return await _repo.GetSalesBySalesID(salesId,true);
         }
 
         public async Task<sales> GetSalesID(string ID)
@@ -52,9 +52,9 @@ namespace BL.BLRepo
             return await _repo.GetSalesID(ID);
         }
 
-        public async Task<string> InsertSales(sales _sales)
+        public async Task<string> InsertSales(sales _sales, bool isTaxed)
         {
-            var adm = await _repo.GetSalesBySalesID(_sales.sid);
+            var adm = await _repo.GetSalesBySalesID(_sales.sid,isTaxed);
             if (adm == null)
             {
                 var res = await _repo.InsertSales(_sales);
@@ -74,9 +74,9 @@ namespace BL.BLRepo
             }
         }
 
-        public async Task<string> UpdateSales(sales _sales)
+        public async Task<string> UpdateSales(sales _sales, bool isTaxed)
         {
-            var adm = await _repo.GetSalesBySalesID(_sales.sid);
+            var adm = await _repo.GetSalesBySalesID(_sales.sid,isTaxed);
             if (adm != null)
             {
                 //_Sales.Id = adm.Id;

@@ -9,11 +9,11 @@ namespace BL.BLService
     public interface IInvoiceRepository
     {
         Task<invoice> GetInvoiceID(string ID);
-        Task<invoice> GetInvoiceByInvoiceID(string invoiceId);
+        Task<invoice> GetInvoiceByInvoiceID(string invoiceId, bool isTaxed);
         Task<IEnumerable<invoice>> GetInvoice();
 
-        Task<string> InsertInvoice(invoice _invoice);
-        Task<string> UpdateInvoice(invoice _invoice);
+        Task<string> InsertInvoice(invoice _invoice,bool isTaxed);
+        Task<string> UpdateInvoice(invoice _invoice, bool isTaxed);
         Task<string> DeleteInvoice(string id);
     }
 }
