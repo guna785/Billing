@@ -169,7 +169,8 @@
 
     }
     function AddToRow() {
-
+        var pname = $("#pname").val();
+        if (pname != null && pname != "") {
         $.ajax({
             url: "/Stock/SetWithOutTaxSlaesStockSession/",
             dataType: 'json',
@@ -193,7 +194,7 @@
 
             }
         });
-
+        }
 
     }
 
@@ -355,7 +356,7 @@
         debugger;
         var tax = $("#tottax").val();
         var amt = $("#totamt").val();
-        if ((tax !== "" && tax !== "0") && (amt !== "" && amt != "0")) {
+        if ((tax !== "" ) && (amt !== "" && amt != "0")) {
             $.ajax({
                 url: "/Stock/MekeSalesWithOutBill/",
                 dataType: 'json',

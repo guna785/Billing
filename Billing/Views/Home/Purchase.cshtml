@@ -153,7 +153,8 @@
     $('.select2').select2()
     var ID = "";
     function AddToRow() {
-
+        var pname = $("#pname").val();
+        if (pname != null && pname != "") {
         $.ajax({
             url: "/Stock/SetStockSession/",
             dataType: 'json',
@@ -178,7 +179,7 @@
 
             }
         });
-
+        }
 
     }
     function addStock() {
@@ -332,7 +333,8 @@
     function NewPurchaseSubmit() {
         var tax = $("#tottax").val();
         var amt = $("#totamt").val();
-        if ((tax !== "" && tax !== "0") && (amt !== "" && amt != "0")) {
+        debugger;
+        if ((tax !== "" ) && (amt !== "" && amt != "0")) {
             $.ajax({
                 url: "/Stock/MekePuchaseWithBill/",
                 dataType: 'json',

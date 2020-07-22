@@ -11,11 +11,11 @@ namespace SchemaGenerator
         public async static Task<string> GenerateSchema<T>()
         {
             var obj = typeof(T).Name;
-            string schema = "";
-            string form = "";
-            string data = "";
-            schema = "{";
-            form = "[";
+            StringBuilder schema = new StringBuilder();
+            StringBuilder form = new StringBuilder();
+            
+            schema.Append("{");
+            form.Append("[");
             System.Attribute[] topattrs = System.Attribute.GetCustomAttributes(typeof(T));
             PropertyInfo[] Props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
             int x = 0;
@@ -49,89 +49,89 @@ namespace SchemaGenerator
                         string nameval = string.IsNullOrWhiteSpace(name) ? propName : name;
                         if (x == 0)
                         {
-                            schema += "\"" + nameval + "\":{\"type\":\"string\"";
-                            form += "{\"key\":\"" + nameval + "\"";
+                            schema.Append( "\"" + nameval + "\":{\"type\":\"string\"");
+                            form.Append( "{\"key\":\"" + nameval + "\"");
                         }
                         else
                         {
-                            schema += ",\"" + nameval + "\":{\"type\":\"string\"";
-                            form += ",{\"key\":\"" + nameval + "\"";
+                            schema.Append( ",\"" + nameval + "\":{\"type\":\"string\"");
+                            form.Append( ",{\"key\":\"" + nameval + "\"");
                         }
                         
                         if (!string.IsNullOrEmpty(title))
                         {
-                            schema += ",\"title\":\"" + title + "\"";
+                            schema.Append( ",\"title\":\"" + title + "\"");
                         }
                         if (!string.IsNullOrEmpty(defaultValue))
                         {
-                            schema += ",\"default\":\"" + defaultValue + "\"";
+                            schema.Append(",\"default\":\"" + defaultValue + "\"");
                         }
                         if (!string.IsNullOrEmpty(description))
                         {
-                            schema += ",\"description\":\"" + description + "\"";
+                            schema.Append( ",\"description\":\"" + description + "\"");
                         }
                         if (isrequired)
                         {
-                            schema += ",\"required\":true";
+                            schema.Append( ",\"required\":true");
                         }
                         if (!string.IsNullOrEmpty(EnumVal))
                         {
-                            schema += ",\"enum\":" +await getEnumList.getEnumRecords(EnumVal);
+                            schema.Append( ",\"enum\":" +await getEnumList.getEnumRecords(EnumVal));
                         }
                         if (!string.IsNullOrEmpty(regularExpression))
                         {
-                            schema += ",\"pattern\":\"" + regularExpression+"\"";
+                            schema.Append( ",\"pattern\":\"" + regularExpression+"\"");
                         }
                         if (message)
                         {
-                            schema += ",\"messages\":" + await getEnumList.getVlidationMessage(nameval);
+                            schema.Append( ",\"messages\":" + await getEnumList.getVlidationMessage(nameval));
                         }
                         if (!string.IsNullOrEmpty(minimum))
                         {
-                            schema += ",\"minimum\":" + minimum;
+                            schema.Append( ",\"minimum\":" + minimum);
                         }
                         if (!string.IsNullOrEmpty(maximum))
                         {
-                            schema += ",\"maximum\":" + maximum;
+                            schema.Append( ",\"maximum\":" + maximum);
                         }
                         if (exclusiveMinimum)
                         {
-                            schema += ",\"exclusiveMinimum\":" + exclusiveMinimum;
+                            schema.Append( ",\"exclusiveMinimum\":" + exclusiveMinimum);
                         }
                         if (exclusiveMaximum)
                         {
-                            schema += ",\"exclusiveMaximum\":" + exclusiveMaximum;
+                            schema.Append( ",\"exclusiveMaximum\":" + exclusiveMaximum);
                         }
 
                         if (!string.IsNullOrEmpty(propType) && !propType.Equals("string"))
                         {
-                            form += ",\"type\":\"" + propType + "\"";
+                            form.Append( ",\"type\":\"" + propType + "\"");
                         }
                         
                         if (!string.IsNullOrEmpty(placeholder))
                         {
-                            form += ",\"placeholder\":\"" + placeholder + "\"";
+                            form.Append( ",\"placeholder\":\"" + placeholder + "\"");
                         }
                         if (!string.IsNullOrEmpty(htmlClass))
                         {
-                            form += ",\"htmlClass\":\"" + htmlClass + "\"";
+                            form.Append(",\"htmlClass\":\"" + htmlClass + "\"");
                         }
                         if (!string.IsNullOrEmpty(fieldHtmlClass))
                         {
-                            form += ",\"fieldHtmlClass\":\"" + fieldHtmlClass + "\"";
+                            form.Append( ",\"fieldHtmlClass\":\"" + fieldHtmlClass + "\"");
                         }
                         if (!string.IsNullOrEmpty(activeClass))
                         {
-                            form += ",\"activeClass\":\"" + activeClass + "\"";
+                            form.Append(",\"activeClass\":\"" + activeClass + "\"");
                         }
-                        schema += "}";
-                        form += "}";
+                        schema.Append( "}");
+                        form.Append( "}");
                         x++;
                     }
                 }
             }
-            schema += "}";
-            form += ",{\"type\":\"submit\",\"title\":\"Submit\"}]";
+            schema.Append( "}");
+            form.Append( ",{\"type\":\"submit\",\"title\":\"Submit\"}]");
             string schemaFile = "{\"schema\":" + schema+",\"form\":"+form+"}";
             return schemaFile;
         }

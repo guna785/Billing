@@ -21,17 +21,17 @@ namespace BL.SchemaModel
         public string procudttype { get; set; }
         [GSchema("mrp", "Enter MRP", "string", true, getHtmlClass = "col-md-6")]
         public string mrp { get; set; }
-        [GSchema("discount", "Enter Discount", "string",true, getHtmlClass = "col-md-6")]
+        [GSchema("discount", "Enter Discount", "string",true, null, null, "0", getHtmlClass = "col-md-6")]
         public string discount { get; set; }
-        [GSchema("qty", "Enter Quanty", "string", true, getHtmlClass = "col-md-6")]
+        [GSchema("qty", "Enter Quanty", "string", true,null, null, "0", getHtmlClass = "col-md-6")]
         public string qty { get; set; }
-        [GSchema("tax", "Enter Tax", "string", true, getHtmlClass = "col-md-6")]
+        [GSchema("tax", "Enter Tax", "string", true, null, null, "0", getHtmlClass = "col-md-6")]
         public string tax { get; set; }
         [GSchema("photo", "Browse For Photo", "file", getHtmlClass = "col-md-6")]
         public string photo { get; set; }
         [GSchema("minalert", "Enter Minimum Stock Alert", "string", true, getHtmlClass = "col-md-6")]
         public string minalert { get; set; }
-        [GSchema("warranty", "Enter Warranty", "string", true, getHtmlClass = "col-md-6")]
+        [GSchema("warranty", "Enter Warranty", "string", true, null, null, "0", getHtmlClass = "col-md-6")]
         public string warranty { get; set; }
         [GSchema("actprice", "Enter Actual Price", "string", true, getHtmlClass = "col-md-6")]
         public string actprice { get; set; }

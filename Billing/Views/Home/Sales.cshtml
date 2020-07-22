@@ -169,30 +169,33 @@
         
     }
     function AddToRow() {
+        var pname = $("#pname").val();
+        if (pname != null && pname != "") {
+            $.ajax({
+                url: "/Stock/SetSlaesStockSession/",
+                dataType: 'json',
+                type: 'post',
+                contentType: 'application/json',
+                data: JSON.stringify({ Id: ID, qty: $('#qty').val() }),
+                processData: false,
+                async: true,
+                success: function (response) {
+                    $('#pname').val("");
+                    $('#cname').val("");
+                    $('#mrp').val("");
+                    $('#company').val("");
+                    $('#qty').val("");
+                    $('#amt').val("");
+                    LoadTables();
+                    tottaxAmtcalculate();
+                },
+                error: function (e) {
+                    swal("Oops", e.responseText, "error");
 
-        $.ajax({
-            url: "/Stock/SetSlaesStockSession/",
-            dataType: 'json',
-            type: 'post',
-            contentType: 'application/json',
-            data: JSON.stringify({ Id: ID, qty: $('#qty').val()}),
-            processData: false,
-            async: true,
-            success: function (response) {
-                $('#pname').val("");
-                $('#cname').val("");
-                $('#mrp').val("");
-                $('#company').val("");
-                $('#qty').val("");
-                $('#amt').val("");
-                LoadTables();
-                tottaxAmtcalculate();
-            },
-            error: function (e) {
-                swal("Oops", e.responseText, "error");
-
-            }
-        });
+                }
+            });
+        }
+      
 
 
     }
@@ -355,7 +358,7 @@
         debugger;
         var tax = $("#tottax").val();
         var amt = $("#totamt").val();
-        if ((tax !== "" && tax !== "0") && (amt !== "" && amt != "0")) {
+        if ((tax !== "" ) && (amt !== "" && amt != "0")) {
             $.ajax({
                 url: "/Stock/MekeSalesWithBill/",
                 dataType: 'json',
