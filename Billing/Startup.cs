@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Billing.Helper;
+using Billing.Infrastructure;
 using Billing.Services;
 using BL;
 using DAL;
@@ -68,6 +69,7 @@ namespace Billing
             {
                 x.IdleTimeout = TimeSpan.FromDays(1);                
             });
+            services.AddSignalR();
             services.AddControllersWithViews()
                 .AddNewtonsoftJson(options =>
                 {
@@ -112,8 +114,11 @@ namespace Billing
                 endpoints.MapControllerRoute(
                     name: "Home",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapHub<SignalServer>("/signalServer");
             });
+#pragma warning disable CS0618 // Type or member is obsolete
             RotativaConfiguration.Setup((Microsoft.AspNetCore.Hosting.IHostingEnvironment)env, "Rotativa");
+#pragma warning restore CS0618 // Type or member is obsolete
         }
     }
 }
