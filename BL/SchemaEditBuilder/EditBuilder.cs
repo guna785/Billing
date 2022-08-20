@@ -155,25 +155,28 @@ namespace BL.SchemaEditBuilder
             {
                 var obdata = await _companyProfile.GetCompanyProfile();
                 var o = obdata.FirstOrDefault();
-                return (T)Convert.ChangeType(new CompanyProfileEdit()
+                if (o != null)
                 {
-                    name = o.name,
-                    address = o.address,
-                    bankaccno = o.bankaccno,
-                    bankbranch = o.bankbranch,
-                    bankname = o.bankname,
-                    email = o.email,
-                    gst = o.gst,
-                    hsn = o.hsn,
-                    ifsc = o.ifsc,
-                    pan = o.pan,
-                    phone = o.phone,
-                    state = o.state,
-                    tin = o.tin,
-                    web = o.web,
-                    Id = o.Id
+                    return (T)Convert.ChangeType(new CompanyProfileEdit()
+                    {
+                        name = o.name,
+                        address = o.address,
+                        bankaccno = o.bankaccno,
+                        bankbranch = o.bankbranch,
+                        bankname = o.bankname,
+                        email = o.email,
+                        gst = o.gst,
+                        hsn = o.hsn,
+                        ifsc = o.ifsc,
+                        pan = o.pan,
+                        phone = o.phone,
+                        state = o.state,
+                        tin = o.tin,
+                        web = o.web,
+                        Id = o.Id
 
-                }, typeof(T));
+                    }, typeof(T));
+                }
             }
             return (T)Convert.ChangeType(null, typeof(T));
         }
