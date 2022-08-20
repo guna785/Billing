@@ -32,7 +32,7 @@ namespace Billing.Controllers
             _configuration = configuration;
             _admin = admin;
         }
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             if (HttpContext.Session.GetString("err") != null)
             {
@@ -42,6 +42,21 @@ namespace Billing.Controllers
             else
             {
                 ViewBag.err = "";
+            }
+            var adm =await _admin.GetAdminByPan("admin");
+            if (adm == null)
+            {
+                await _admin.InsertAdmin(new DAL.Models.admin()
+                {
+                    cdate = DateTime.Now,
+                    email = "admin@mail.com",
+                    name = "Admin",
+                    password = "123456",
+                    phone = "9876543210",
+                    remarks = "none",
+                    role = "Admin",
+                    uname = "admin"
+                });
             }
             return View();
         }
@@ -65,10 +80,10 @@ namespace Billing.Controllers
             var comfirmpass = HttpContext.Request.Form["comfirmpass"];
             if (newpass.Equals(comfirmpass))
             {
-                var adm =await _admin.GetAdmin();
+                var adm = await _admin.GetAdmin();
                 var a = adm.FirstOrDefault();
                 a.password = newpass;
-                var res =await _admin.UpdateAdmin(a);
+                var res = await _admin.UpdateAdmin(a);
                 if (res.Contains("successfull"))
                 {
                     return Redirect("/Login/");
@@ -160,6 +175,7 @@ namespace Billing.Controllers
             };
 
         }
+
         public IActionResult Logout()
         {
             HttpContext.Session.Remove("JWToken");
