@@ -480,6 +480,7 @@ namespace Billing.Controllers
             {
                 var sk = await _repo.GetStockID(value.Id);
                 var stk = new List<PurchaseModel>();
+
                 var p = new PurchaseModel()
                 {
                     Id = sk.Id,
@@ -492,7 +493,7 @@ namespace Billing.Controllers
                     photo = sk.photo,
                     qty = value.qty,
                     tax = sk.tax,
-                    amount = (Convert.ToInt32(sk.mrp) * value.qty).ToString(),
+                    amount = (Convert.ToInt32(sk.mrp) * Convert.ToInt32( value.qty)).ToString(),
                     company = sk.company,
                     warranty = sk.warranty
                 };
