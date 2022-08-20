@@ -17,6 +17,7 @@ using System.IO;
 using OfficeOpenXml;
 using Billing.Helper;
 using System.Data;
+using System.Globalization;
 
 namespace Billing.Controllers
 {
@@ -211,8 +212,8 @@ namespace Billing.Controllers
         public async Task<IActionResult> ReportGet()
         {
             var rdate = HttpContext.Request.Form["rdate"].ToString();
-            var frmDate = Convert.ToDateTime(rdate.Split('-')[0]);
-            var toDate = Convert.ToDateTime(rdate.Split('-')[1]);
+            var frmDate = DateTime.ParseExact(rdate.Split('-')[0].Trim(), "MM/dd/yyyy hh:mm tt", CultureInfo.InvariantCulture);
+            var toDate = DateTime.ParseExact(rdate.Split('-')[1].Trim(), "MM/dd/yyyy hh:mm tt", CultureInfo.InvariantCulture);
 
             var rtype = HttpContext.Request.Form["rtype"];
             byte[] data = null;
